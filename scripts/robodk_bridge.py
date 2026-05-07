@@ -917,6 +917,8 @@ class RoboDKBridge(Node):
         result = future.result()
         # On success the AMR has arrived; we hold in WAITING_COBOT until the cobot publishes COMPLETED.
         # On any other status we treat the order as failed and return to IDLE so the queue can move on.
+        # result.status values: 0=UNKNOWN, 1=ACCEPTED, 2=EXECUTING, 3=CANCELED, 4=SUCCEEDED, 5=ABORTED, 6=REJECTED, 7=PREEMPTING, 8=PREEMPTED
+        # Those are defined in action_msgs/msg/GoalStatus.msg in ROS2.
         with self._state_lock:
             target = self._current_order
             if result.status == 4:  # STATUS_SUCCEEDED
@@ -928,6 +930,7 @@ class RoboDKBridge(Node):
         if result.status == 4:
             self.get_logger().info(f'Arrived at {target}, waiting for cobot')
             self._publish_status('goal_reached')
+            # Function to publish the AMR status with the arrived location.
             self._publish_amr_status('arrived', target or '')
         else:
             self.get_logger().warn(f'Navigation ended with status: {result.status}')
