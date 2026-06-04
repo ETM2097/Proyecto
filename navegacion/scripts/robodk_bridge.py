@@ -67,12 +67,12 @@ class AMRState(Enum):
 # AMR's memory for the locations of the different stations (dictionary).
 # Locations sent by the ESP32: TOLVA_# and COBOT_PICK. They are random for now
 STATION_TARGETS = {
-    'TOLVA_1': (-3.872, -0.5251),
-    'TOLVA_2': (-4.571, -0.5251),
+    'TOLVA_1': (-5.3875, -0.5251),
+    'TOLVA_2': (-3.7087, 0.581),
     'TOLVA_3': (-5.3875, -0.5251),
-    'TOLVA_4': (-3.50, 1.20),
-    'TOLVA_5': (0.50, 3.00),
-    'TOLVA_6': (3.00, 3.50),
+    'TOLVA_4': (-5.3875, 0.581),
+    'TOLVA_5': (-4.4581, 0.581),
+    'TOLVA_6': (-3.782, -0.5251),
     'COBOT_PICK': (-0.116087, -0.0583, -90.0),
 }
 
@@ -277,8 +277,13 @@ class RoboDKBridge(Node):
             self.get_logger().error(
                 f'Unknown target "{target_name}". Known: {list(STATION_TARGETS)}')
             return False
-        x, y = coords
-        self._send_nav2_goal_xy(x, y, yaw=FIXED_YAW_RAD, target_name=target_name)
+        if len(coords) == 3:
+            x, y, yaw_deg = coords
+            yaw = math.radians(yaw_deg)
+        else:
+            x, y = coords
+            yaw = FIXED_YAW_RAD
+        self._send_nav2_goal_xy(x, y, yaw=yaw, target_name=target_name)
         return True
 
     # Helper that builds a PoseStamped from (x, y, yaw) and forwards it to _send_nav2_goal.

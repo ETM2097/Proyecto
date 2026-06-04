@@ -10,6 +10,7 @@ install(DIRECTORY
   meshes
   models
   rviz
+  scada
   urdf
   worlds
   DESTINATION share/${PROJECT_NAME}
